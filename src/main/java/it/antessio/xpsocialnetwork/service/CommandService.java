@@ -23,6 +23,7 @@ public class CommandService {
     private final UserPostDAO userPostDAO;
     private final UserFollowerDAO userFollowerDAO;
     private final UserWallDAO userWallDAO;
+
     public CommandService(){
         this.userPostDAO = new UserPostDAO();
         this.userDAO = new UserDAO();
@@ -41,6 +42,7 @@ public class CommandService {
         Matcher listPostMatcher = LIST_POST_PATTERN.matcher(command);
         Matcher followsMatcher = FOLLOWS_PATTERN.matcher(command);
         Matcher wallPattern = WALL_PATTERN.matcher(command);
+        //TODO apply a design pattern (ChainOfResponsability?)
         if(insertPostMatcher.matches()) {
             String username = insertPostMatcher.group(1);
             String content = insertPostMatcher.group(2);

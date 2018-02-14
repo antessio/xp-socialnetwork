@@ -74,7 +74,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
                                 .minusSeconds(1))
                 )
         );
@@ -88,7 +88,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
                                 .minusSeconds(2))
                 )
         );
@@ -102,7 +102,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
                                 .minusSeconds(61))
                 )
         );
@@ -117,7 +117,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "Good game though.",now.minusMinutes(1))
+                        new UserPost(1l,username, "Good game though.",now.minusMinutes(1))
                 )
         );
         String output = commandService.handle(command);
@@ -131,7 +131,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I love the weather today",now.minusMinutes(5))
+                        new UserPost(1l,username, "I love the weather today",now.minusMinutes(5))
                 )
         );
         String output = commandService.handle(command);
@@ -146,7 +146,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I love the weather today",now.minusMinutes(61))
+                        new UserPost(1l,username, "I love the weather today",now.minusMinutes(61))
                 )
         );
         String output = commandService.handle(command);
@@ -162,7 +162,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I love the weather today",now.minusHours(1))
+                        new UserPost(1l,username, "I love the weather today",now.minusHours(1))
                 )
         );
         String output = commandService.handle(command);
@@ -178,7 +178,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I love the weather today",now.minusHours(2))
+                        new UserPost(1l,username, "I love the weather today",now.minusHours(2))
                 )
         );
         String output = commandService.handle(command);
@@ -193,7 +193,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I love the weather today",now.minusHours(25))
+                        new UserPost(1l,username, "I love the weather today",now.minusHours(25))
                 )
         );
         String output = commandService.handle(command);
@@ -210,7 +210,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
                                 .minusDays(1))
                 )
         );
@@ -224,7 +224,7 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
                                 .minusDays(2))
                 )
         );
@@ -238,8 +238,8 @@ public class CommandServiceTest {
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(2))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(username, "Good game though.",now.minusMinutes(1)),
-                        new UserPost(username, "Damn! We lost!",now.minusMinutes(2))
+                        new UserPost(1l,username, "Good game though.",now.minusMinutes(1)),
+                        new UserPost(2l,username, "Damn! We lost!",now.minusMinutes(2))
                 )
         );
         String output = commandService.handle(command);
@@ -300,10 +300,11 @@ public class CommandServiceTest {
         String command = username+" wall";
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(3))));
         List<UserPost> expectedPosts = Arrays.asList(
-                new UserPost(username,"I'm in New York today! Anyone wants to have a coffee?",now.minusSeconds(15)),
-                new UserPost("Bob","Good game though.",now.minusMinutes(1)),
-                new UserPost("Bob","Damn! We lost!",now.minusMinutes(2)),
-                new UserPost("Alice","I love the weather today",now.minusMinutes(5))
+                new UserPost(1l,username,"I'm in New York today! Anyone wants to have a coffee?",now.minusSeconds
+                        (15)),
+                new UserPost(2l,"Bob","Good game though.",now.minusMinutes(1)),
+                new UserPost(3l,"Bob","Damn! We lost!",now.minusMinutes(2)),
+                new UserPost(4l,"Alice","I love the weather today",now.minusMinutes(5))
         );
         UserWall expectedWall = new UserWall(username,expectedPosts);
         when(userWallDAO.get(username)).thenReturn(expectedWall);
