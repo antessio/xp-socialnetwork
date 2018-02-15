@@ -1,7 +1,10 @@
 package xpsocialnetwork.dao;
 
 
-import it.antessio.xpsocialnetwork.dao.db.DbConnectionConfigFactory;
+import it.antessio.xpsocialnetwork.dao.db.DatabseUtils;
+import it.antessio.xpsocialnetwork.exception.DAOException;
+import org.junit.After;
+import org.junit.Before;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,24 +23,24 @@ public abstract class AbstractDAOTest {
 
     protected final String URL;
     public AbstractDAOTest(){
-        URL = new DbConnectionConfigFactory().createConfig();
+        try {
+            URL = new DatabseUtils().getDatabaseUrl();
+        }catch(DAOException e){
+            throw new RuntimeException("Unable to load the database configuration", e);
+        }
     }
 
-    private String readSQLContent(URL scriptURL){
-        StringBuilder sql=new StringBuilder();
-        try {
-            FileReader fr = new FileReader(new File(scriptURL.toURI().getPath()));
-            BufferedReader br = new BufferedReader(fr);
-            String line = "";
-            //read the SQL file line by line
-            while ((line = br.readLine()) != null) {
-                sql.append(line);
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return sql.toString();
+    @Before
+    public void setUp(){
+        createTestDB();
     }
+
+    @After
+    public void tearDown(){
+        dropTestDB();
+    }
+
+
     private List<String> createQueries(URL scriptURL) {
         String queryLine = "";
         StringBuffer sBuffer = new StringBuffer();
@@ -124,30 +127,20 @@ public abstract class AbstractDAOTest {
     }
     protected void createTestDB() {
         URL initSqlURL = AbstractDAOTest.class.getClassLoader().getResource("init_db.sql");
-        String sql = this.readSQLContent(initSqlURL);
-//        List<String> queries = this.createQueries(initSqlURL);
+        initDatabase(initSqlURL);
+    }
+
+    public void initDatabase(URL initSqlURL) {
+        String sql = new DatabseUtils().readSQLContent(initSqlURL);
         try (Connection connection = DriverManager.getConnection(URL)) {
             Statement statement = connection.createStatement();
             statement.addBatch(sql);
             statement.executeBatch();
-            /*for(String q: queries){
-                statement.execute(q);
-            }*/
         } catch (SQLException e) {
             fail(e.getMessage(),e);
         }
     }
-    protected boolean checkDB(String tableName){
-        try (Connection connection = DriverManager.getConnection(URL)) {
-            DatabaseMetaData meta = connection.getMetaData();
-            ResultSet res = meta.getTables(null, null, tableName,
-                    new String[] {"TABLE"});
-            return res.next();
-        } catch (SQLException e) {
-            fail(e.getMessage(),e);
-        }
-        return false;
-    }
+
 
     protected List<Map<String,Object>> queryAll(String tableName) {
         List<Map<String,Object>> results = new ArrayList<>();

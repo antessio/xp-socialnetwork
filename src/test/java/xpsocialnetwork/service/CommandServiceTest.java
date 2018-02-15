@@ -3,11 +3,10 @@ package xpsocialnetwork.service;
 import it.antessio.xpsocialnetwork.dao.UserDAO;
 import it.antessio.xpsocialnetwork.dao.UserFollowerDAO;
 import it.antessio.xpsocialnetwork.dao.UserPostDAO;
-import it.antessio.xpsocialnetwork.dao.UserWallDAO;
 import it.antessio.xpsocialnetwork.exception.ServiceException;
 import it.antessio.xpsocialnetwork.model.User;
+import it.antessio.xpsocialnetwork.model.UserFollower;
 import it.antessio.xpsocialnetwork.model.UserPost;
-import it.antessio.xpsocialnetwork.model.UserWall;
 import it.antessio.xpsocialnetwork.service.CommandService;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,28 +31,41 @@ public class CommandServiceTest {
     private UserPostDAO userPostDAO = mock(UserPostDAO.class);
     private UserDAO userDAO = mock(UserDAO.class);
     private UserFollowerDAO userFollowerDAO = mock(UserFollowerDAO.class);
-    private UserWallDAO userWallDAO = mock(UserWallDAO.class);
 
-    private LocalDateTime now = LocalDateTime.now();
+    private final LocalDateTime NOW = LocalDateTime.now();
 
     @Before
     public void setUp() throws Exception {
-        commandService = new CommandService(userPostDAO,userDAO,userFollowerDAO,userWallDAO){
+        commandService = new CommandService(userPostDAO,userDAO,userFollowerDAO){
             @Override
             protected LocalDateTime getNow() {
-                return now;
+                return NOW;
             }
         };
     }
     @Test
-    public void userSubmitPost()throws Exception{
+    public void existingUserSubmitPost()throws Exception{
         String username = "Alice";
         String content = "I love the weather today";
         String command = username + " -> " + content;
-        UserPost expectedPost = new UserPost(username,content, now);
+        UserPost expectedPost = new UserPost(username,content, NOW);
+        when(userDAO.find("Alice"))
+                .thenReturn(Optional.of(new User("Alice",LocalDateTime.now().minusDays(3))));
         String output = commandService.handle(command);
         verify(userPostDAO).insertPost(expectedPost);
-        verify(userDAO).insert(username);
+        assertThat(output).isEmpty();
+    }
+    @Test
+    public void notExistingUserSubmitPost()throws Exception{
+        String username = "Alice";
+        String content = "I love the weather today";
+        String command = username + " -> " + content;
+        UserPost expectedPost = new UserPost(username,content, NOW);
+        when(userDAO.find("Alice"))
+                .thenReturn(Optional.empty());
+        String output = commandService.handle(command);
+        verify(userPostDAO).insertPost(expectedPost);
+        verify(userDAO).insert(new User(username, NOW));
         assertThat(output).isEmpty();
     }
     @Test
@@ -61,20 +73,21 @@ public class CommandServiceTest {
         String username = "Alice";
         String content = "";
         String command = username + " -> " + content;
-        UserPost expectedPost = new UserPost(username,content, now);
+        UserPost expectedPost = new UserPost(username,content, NOW);
+        when(userDAO.find("Alice")).thenReturn(Optional.empty());
         String output = commandService.handle(command);
         verify(userPostDAO).insertPost(expectedPost);
-        verify(userDAO).insert(username);
+        verify(userDAO).insert(new User(username, NOW));
         assertThat(output).isEmpty();
     }
     @Test
     public void userListPosts1Second() throws Exception{
         String username = "Charlie";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?", NOW
                                 .minusSeconds(1))
                 )
         );
@@ -85,10 +98,10 @@ public class CommandServiceTest {
     public void userListPosts2Seconds() throws Exception{
         String username = "Charlie";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?", NOW
                                 .minusSeconds(2))
                 )
         );
@@ -99,10 +112,10 @@ public class CommandServiceTest {
     public void userListPosts61Seconds() throws Exception{
         String username = "Charlie";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?", NOW
                                 .minusSeconds(61))
                 )
         );
@@ -114,10 +127,10 @@ public class CommandServiceTest {
     public void userListPosts1Minute() throws Exception{
         String username = "Bob";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "Good game though.",now.minusMinutes(1))
+                        new UserPost(1l,username, "Good game though.", NOW.minusMinutes(1))
                 )
         );
         String output = commandService.handle(command);
@@ -128,10 +141,10 @@ public class CommandServiceTest {
     public void userListPosts5Minutes() throws Exception{
         String username = "Alice";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I love the weather today",now.minusMinutes(5))
+                        new UserPost(1l,username, "I love the weather today", NOW.minusMinutes(5))
                 )
         );
         String output = commandService.handle(command);
@@ -143,10 +156,10 @@ public class CommandServiceTest {
     public void userListPosts61Minutes() throws Exception{
         String username = "Alice";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I love the weather today",now.minusMinutes(61))
+                        new UserPost(1l,username, "I love the weather today", NOW.minusMinutes(61))
                 )
         );
         String output = commandService.handle(command);
@@ -159,10 +172,10 @@ public class CommandServiceTest {
     public void userListPosts1Hour() throws Exception{
         String username = "Alice";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I love the weather today",now.minusHours(1))
+                        new UserPost(1l,username, "I love the weather today", NOW.minusHours(1))
                 )
         );
         String output = commandService.handle(command);
@@ -175,10 +188,10 @@ public class CommandServiceTest {
     public void userListPosts2Hour() throws Exception{
         String username = "Alice";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I love the weather today",now.minusHours(2))
+                        new UserPost(1l,username, "I love the weather today", NOW.minusHours(2))
                 )
         );
         String output = commandService.handle(command);
@@ -190,10 +203,10 @@ public class CommandServiceTest {
     public void userListPosts25Hour() throws Exception{
         String username = "Alice";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I love the weather today",now.minusHours(25))
+                        new UserPost(1l,username, "I love the weather today", NOW.minusHours(25))
                 )
         );
         String output = commandService.handle(command);
@@ -207,10 +220,10 @@ public class CommandServiceTest {
     public void userListPosts1Day() throws Exception{
         String username = "Charlie";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?", NOW
                                 .minusDays(1))
                 )
         );
@@ -221,10 +234,10 @@ public class CommandServiceTest {
     public void userListPosts2Days() throws Exception{
         String username = "Charlie";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(1))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(1))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?",now
+                        new UserPost(1l,username, "I'm in New York today! Anyone wants to have a coffee?", NOW
                                 .minusDays(2))
                 )
         );
@@ -235,11 +248,11 @@ public class CommandServiceTest {
     public void userListPostsMulti() throws Exception{
         String username = "Bob";
         String command = username;
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(2))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(2))));
         when(userPostDAO.findPostsByUser(username)).thenReturn(
                 Arrays.asList(
-                        new UserPost(1l,username, "Good game though.",now.minusMinutes(1)),
-                        new UserPost(2l,username, "Damn! We lost!",now.minusMinutes(2))
+                        new UserPost(1l,username, "Good game though.", NOW.minusMinutes(1)),
+                        new UserPost(2l,username, "Damn! We lost!", NOW.minusMinutes(2))
                 )
         );
         String output = commandService.handle(command);
@@ -262,10 +275,10 @@ public class CommandServiceTest {
         String follower="Charlie";
         String username="Alice";
         String command=follower+" follows "+username;
-        when(userDAO.find(follower)).thenReturn(Optional.of(new User(follower,now.minusMinutes(3))));
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
+        when(userDAO.find(follower)).thenReturn(Optional.of(new User(follower, NOW.minusMinutes(3))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
         String output = commandService.handle(command);
-        verify(userFollowerDAO).insert(username,follower);
+        verify(userFollowerDAO).insert(new UserFollower(username,follower));
         assertThat(output).isEmpty();
 
     }
@@ -274,7 +287,7 @@ public class CommandServiceTest {
         String follower="Charlie";
         String username="Nicola";
         String command=follower+" follows "+username;
-        when(userDAO.find(follower)).thenReturn(Optional.of(new User(follower,now.minusMinutes(3))));
+        when(userDAO.find(follower)).thenReturn(Optional.of(new User(follower, NOW.minusMinutes(3))));
         when(userDAO.find(username)).thenReturn(Optional.empty());
         assertThatThrownBy(()->
                 commandService.handle(command)
@@ -287,7 +300,7 @@ public class CommandServiceTest {
         String username="Alice";
         String command=follower+" follows "+username;
         when(userDAO.find(follower)).thenReturn(Optional.empty());
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(5))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
         assertThatThrownBy(()->
                 commandService.handle(command)
         ).isInstanceOf(ServiceException.class)
@@ -298,16 +311,16 @@ public class CommandServiceTest {
     public void wall()throws Exception{
         String username="Charlie";
         String command = username+" wall";
-        when(userDAO.find(username)).thenReturn(Optional.of(new User(username,now.minusMinutes(3))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(3))));
         List<UserPost> expectedPosts = Arrays.asList(
-                new UserPost(1l,username,"I'm in New York today! Anyone wants to have a coffee?",now.minusSeconds
+                new UserPost(1l,username,"I'm in New York today! Anyone wants to have a coffee?", NOW.minusSeconds
                         (15)),
-                new UserPost(2l,"Bob","Good game though.",now.minusMinutes(1)),
-                new UserPost(3l,"Bob","Damn! We lost!",now.minusMinutes(2)),
-                new UserPost(4l,"Alice","I love the weather today",now.minusMinutes(5))
+                new UserPost(2l,"Bob","Good game though.", NOW.minusMinutes(1)),
+                new UserPost(3l,"Bob","Damn! We lost!", NOW.minusMinutes(2)),
+                new UserPost(4l,"Alice","I love the weather today", NOW.minusMinutes(5))
         );
-        UserWall expectedWall = new UserWall(username,expectedPosts);
-        when(userWallDAO.get(username)).thenReturn(expectedWall);
+
+        when(userPostDAO.getWall(username)).thenReturn(expectedPosts);
         String output = commandService.handle(command);
         String expectedOutput="Charlie - I'm in New York today! Anyone wants to have a coffee? (15 seconds ago)\n" +
                 "Bob - Good game though. (1 minute ago)\n" +
