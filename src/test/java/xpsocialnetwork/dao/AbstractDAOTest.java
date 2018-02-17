@@ -22,21 +22,20 @@ import static org.assertj.core.api.Java6Assertions.fail;
 public abstract class AbstractDAOTest {
 
     protected final String URL;
-    public AbstractDAOTest(){
-        try {
-            URL = new DatabseUtils().getDatabaseUrl();
-        }catch(DAOException e){
-            throw new RuntimeException("Unable to load the database configuration", e);
-        }
+
+    public AbstractDAOTest() {
+
+        URL = new DatabseUtils().getDatabaseUrl();
+
     }
 
     @Before
-    public void setUp(){
+    public void setUp() {
         createTestDB();
     }
 
     @After
-    public void tearDown(){
+    public void tearDown() {
         dropTestDB();
     }
 
@@ -44,7 +43,7 @@ public abstract class AbstractDAOTest {
     private List<String> createQueries(URL scriptURL) {
         String queryLine = "";
         StringBuffer sBuffer = new StringBuffer();
-        List<String> sql  = new ArrayList<>();
+        List<String> sql = new ArrayList<>();
 //        StringBuilder sql = new StringBuilder();
 
         try {
@@ -114,6 +113,7 @@ public abstract class AbstractDAOTest {
 //        return sql.toString();
         return sql;
     }
+
     protected void dropTestDB() {
         try (Connection connection = DriverManager.getConnection(URL)) {
 
@@ -125,34 +125,36 @@ public abstract class AbstractDAOTest {
             e.printStackTrace();
         }
     }
+
     protected void createTestDB() {
         URL initSqlURL = AbstractDAOTest.class.getClassLoader().getResource("init_db.sql");
         initDatabase(initSqlURL);
     }
 
     public void initDatabase(URL initSqlURL) {
+
         String sql = new DatabseUtils().readSQLContent(initSqlURL);
         try (Connection connection = DriverManager.getConnection(URL)) {
             Statement statement = connection.createStatement();
             statement.addBatch(sql);
             statement.executeBatch();
         } catch (SQLException e) {
-            fail(e.getMessage(),e);
+            fail(e.getMessage(), e);
         }
     }
 
 
-    protected List<Map<String,Object>> queryAll(String tableName) {
-        List<Map<String,Object>> results = new ArrayList<>();
+    protected List<Map<String, Object>> queryAll(String tableName) {
+        List<Map<String, Object>> results = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(URL)) {
             PreparedStatement ps = connection.prepareStatement("SELECT * FROM " + tableName);
             ResultSet rs = ps.executeQuery();
             ResultSetMetaData md = rs.getMetaData();
             int columns = md.getColumnCount();
-            while(rs.next()){
-                HashMap<String,Object> row = new HashMap<>();
-                for(int i=1; i<=columns; ++i) {
-                    row.put(md.getColumnLabel(i).toLowerCase(),rs.getObject(i));
+            while (rs.next()) {
+                HashMap<String, Object> row = new HashMap<>();
+                for (int i = 1; i <= columns; ++i) {
+                    row.put(md.getColumnLabel(i).toLowerCase(), rs.getObject(i));
                 }
                 results.add(row);
             }

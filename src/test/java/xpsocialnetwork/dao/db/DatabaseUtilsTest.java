@@ -2,6 +2,7 @@ package xpsocialnetwork.dao.db;
 
 
 import it.antessio.xpsocialnetwork.dao.db.DatabseUtils;
+import it.antessio.xpsocialnetwork.exception.ApplicationRuntimeException;
 import it.antessio.xpsocialnetwork.exception.DAOException;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +28,7 @@ public class DatabaseUtilsTest {
         factory=new DatabseUtils("unexistingFile.properties");
         assertThatThrownBy(
                 ()-> factory.getDatabaseUrl()
-        ).isInstanceOf(DAOException.class)
+        ).isInstanceOf(ApplicationRuntimeException.class)
         .matches(e->e.getMessage().equals("Unable to load the database configuration"));
 
     }

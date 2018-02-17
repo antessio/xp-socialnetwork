@@ -23,7 +23,8 @@ public class UserFollowerDAO extends AbstractDAO{
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, userFollower.getUsername());
             ps.setString(2, userFollower.getFollower());
-            ps.executeUpdate();
+            int affectedRows = ps.executeUpdate();
+            logger.debug("Update follower affected rows: "+affectedRows);
         }catch(SQLException e){
             throw new DAOException(e);
         }

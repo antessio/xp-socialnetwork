@@ -22,7 +22,8 @@ public class UserDAO extends AbstractDAO {
             PreparedStatement ps = connection.prepareStatement(sql);
             ps.setString(1, user.getUsername());
             ps.setTimestamp(2, Timestamp.valueOf(user.getCreatedAt()));
-            ps.executeUpdate();
+            int affectedRows = ps.executeUpdate();
+            logger.debug("Insert user affected rows: "+affectedRows);
         }catch (SQLException e){
             throw new DAOException(e.getMessage(),e);
         }

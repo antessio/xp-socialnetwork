@@ -8,6 +8,8 @@ import it.antessio.xpsocialnetwork.exception.ServiceException;
 import it.antessio.xpsocialnetwork.model.User;
 import it.antessio.xpsocialnetwork.model.UserFollower;
 import it.antessio.xpsocialnetwork.model.UserPost;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -24,6 +26,7 @@ public class CommandService {
     private final UserDAO userDAO;
     private final UserPostDAO userPostDAO;
     private final UserFollowerDAO userFollowerDAO;
+    private static final Logger logger = LoggerFactory.getLogger(CommandService.class);
 
     public CommandService(){
         this.userPostDAO = new UserPostDAO();
@@ -47,18 +50,21 @@ public class CommandService {
                 String username = insertPostMatcher.group(1);
                 String content = insertPostMatcher.group(2);
                 LocalDateTime created = getNow();
+                logger.info(username+" is publishing new post "+content+" on "+created);
                 if (!userDAO.find(username).isPresent()) {
                     userDAO.insert(new User(username, getNow()));
                 }
                 userPostDAO.insertPost(new UserPost(username, content, created));
             } else if (listPostMatcher.matches()) {
                 String username = listPostMatcher.group();
+                logger.info(username+" list posts ");
                 userDAO.find(username).orElseThrow(() -> new ServiceException(username + " not found"));
                 List<UserPost> userPostList = userPostDAO.findPostsByUser(username);
                 return collectUserPosts(userPostList, false);
             } else if (followsMatcher.matches()) {
                 String follower = followsMatcher.group(1);
                 String username = followsMatcher.group(2);
+                logger.info(username+" has a new follower "+follower);
                 userDAO.find(username).orElseThrow(() -> new ServiceException(username + " not found"));
                 userDAO.find(follower).orElseThrow(() -> new ServiceException(follower + " not found"));
                 userFollowerDAO.insert(new UserFollower(username, follower));

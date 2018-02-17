@@ -29,7 +29,8 @@ public class UserPostDAO extends AbstractDAO{
             ps.setString(1,userPost.getUsername());
             ps.setString(2,userPost.getContent());
             ps.setTimestamp(3, Timestamp.valueOf(userPost.getCreated()));
-            ps.executeUpdate();
+            int affectedRows = ps.executeUpdate();
+            logger.debug("Insert post affected rows: "+affectedRows);
         }catch(SQLException e){
             throw new DAOException("Unable to find user's post",e);
         }
