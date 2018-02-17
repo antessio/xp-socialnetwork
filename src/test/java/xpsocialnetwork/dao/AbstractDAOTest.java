@@ -1,8 +1,8 @@
 package xpsocialnetwork.dao;
 
 
-import it.antessio.xpsocialnetwork.dao.db.DatabseUtils;
-import it.antessio.xpsocialnetwork.exception.DAOException;
+import it.antessio.xpsocialnetwork.dao.db.DatabaseUtils;
+import it.antessio.xpsocialnetwork.dao.db.DatabaseUtilsFactory;
 import org.junit.After;
 import org.junit.Before;
 
@@ -25,7 +25,7 @@ public abstract class AbstractDAOTest {
 
     public AbstractDAOTest() {
 
-        URL = new DatabseUtils().getDatabaseUrl();
+        URL = DatabaseUtilsFactory.getInstance().getDatabaseUrl();
 
     }
 
@@ -133,7 +133,7 @@ public abstract class AbstractDAOTest {
 
     public void initDatabase(URL initSqlURL) {
 
-        String sql = new DatabseUtils().readSQLContent(initSqlURL);
+        String sql = DatabaseUtilsFactory.getInstance().readSQLContent(initSqlURL);
         try (Connection connection = DriverManager.getConnection(URL)) {
             Statement statement = connection.createStatement();
             statement.addBatch(sql);

@@ -2,7 +2,6 @@ package it.antessio.xpsocialnetwork.dao.db;
 
 
 import it.antessio.xpsocialnetwork.exception.ApplicationRuntimeException;
-import it.antessio.xpsocialnetwork.exception.DAOException;
 
 import java.io.*;
 import java.net.URISyntaxException;
@@ -13,17 +12,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-public class DatabseUtils {
+public class DatabaseUtils {
 
     private static final String DEFAULT_PROPERTIES_FILE_NAME = "db.properties";
     private String propertiesFileName;
 
-    public DatabseUtils() {
+    DatabaseUtils() {
         propertiesFileName = DEFAULT_PROPERTIES_FILE_NAME;
-    }
-
-    public DatabseUtils(String propertiesFileName) {
-        this.propertiesFileName = propertiesFileName;
     }
 
     public void setUpDB(String sql) {
@@ -54,7 +49,7 @@ public class DatabseUtils {
 
     public String getDatabaseUrl() {
         Properties dbProperties = new Properties();
-        URL propertiesUrl = DatabseUtils.class.getClassLoader().getResource(propertiesFileName);
+        URL propertiesUrl = DatabaseUtils.class.getClassLoader().getResource(propertiesFileName);
         if (propertiesUrl == null) {
             throw new ApplicationRuntimeException("Unable to load the database configuration");
         }

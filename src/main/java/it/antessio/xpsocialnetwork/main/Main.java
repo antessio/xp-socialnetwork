@@ -1,7 +1,6 @@
 package it.antessio.xpsocialnetwork.main;
 
 
-import it.antessio.xpsocialnetwork.dao.db.DatabseUtils;
 import it.antessio.xpsocialnetwork.exception.ServiceException;
 import it.antessio.xpsocialnetwork.service.CommandService;
 import org.apache.commons.lang3.StringUtils;
