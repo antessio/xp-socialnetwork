@@ -10,6 +10,7 @@ import it.antessio.xpsocialnetwork.model.UserPost;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,7 +40,13 @@ public class FollowsUserHandler extends AbstractHandler {
             try {
                 userDAO.find(username).orElseThrow(() -> new ServiceException(username + " not found"));
                 userDAO.find(follower).orElseThrow(() -> new ServiceException(follower + " not found"));
-                userFollowerDAO.insert(new UserFollower(username, follower));
+                Optional<UserFollower> userFollowerOptional =
+                        userFollowerDAO.findByUsernameAndFollower(username,follower);
+                if(userFollowerOptional.isPresent()){
+                    return follower+" is already following "+username;
+                }else {
+                    userFollowerDAO.insert(new UserFollower(username, follower));
+                }
             } catch (DAOException e) {
                 throw new ServiceException(e);
             }

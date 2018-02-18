@@ -37,12 +37,13 @@ public class Main {
                         printOutput(output);
                     } catch (ServiceException e) {
                         logger.error("Service error: "+e.getMessage(),e);
-                        printOutput(e.getMessage());
+                        printOutput("Oops! Something went wrong, check the command");
                     } catch (CommandNotFoundException e){
-                        logger.error(e.getMessage());
+                        logger.error(e.getMessage(),e);
                         printHelp(e.getMessage());
                     }catch (ApplicationRuntimeException e){
-                        printOutput(e.getMessage());
+                        logger.error(e.getMessage(),e);
+                        printOutput("Unable to load the application");
                         System.exit(1);
                     }
                 }

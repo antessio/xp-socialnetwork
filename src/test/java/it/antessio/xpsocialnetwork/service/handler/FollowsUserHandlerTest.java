@@ -36,6 +36,8 @@ public class FollowsUserHandlerTest {
         createFollowsUserHandlerMocks();
         when(userDAO.find(follower)).thenReturn(Optional.of(new User(follower, NOW.minusMinutes(3))));
         when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
+        when(userFollowerDAO.findByUsernameAndFollower(username,follower))
+                .thenReturn(Optional.empty());
         String output = handler.handleCommand(command);
         verify(userFollowerDAO).insert(new UserFollower(username,follower));
         assertThat(output).isEmpty();
@@ -66,6 +68,19 @@ public class FollowsUserHandlerTest {
                 handler.handleCommand(command)
         ).isInstanceOf(ServiceException.class)
                 .matches(e->e.getMessage().equals(follower+" not found"));
+    }
+    @Test
+    public void followUser_alreadyPresent()throws Exception{
+        String follower="Charlie";
+        String username="Alice";
+        String command = follower+" follows "+username;
+        createFollowsUserHandlerMocks();
+        when(userDAO.find(follower)).thenReturn(Optional.of(new User(follower, NOW.minusMinutes(3))));
+        when(userDAO.find(username)).thenReturn(Optional.of(new User(username, NOW.minusMinutes(5))));
+        when(userFollowerDAO.findByUsernameAndFollower(username,follower)).thenReturn(Optional.of(new UserFollower
+                (username,follower)));
+        String output = handler.handleCommand(command);
+        assertThat(output).isEqualTo(follower+" is already following "+username);
     }
     @Test
     public void commandNotFound() throws ServiceException {

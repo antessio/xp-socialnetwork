@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
@@ -49,6 +50,28 @@ public class UserFollowerDAOTest extends AbstractDAOTest{
         assertThatThrownBy(
                 ()->dao.insert(new UserFollower("Alice","Bob"))
         ).isInstanceOf(DAOException.class);
+    }
+
+    @Test
+    public void testFindByUsernameAndFollower()throws Exception{
+        String username = "Alice";
+        String follower = "Bob";
+        Optional<UserFollower> userFollowerOptional = dao.findByUsernameAndFollower(username,follower);
+        assertThat(userFollowerOptional.isPresent()).isTrue();
+        UserFollower userFollower = userFollowerOptional.get();
+        assertThat(userFollower.getFollower()).isEqualTo(follower);
+        assertThat(userFollower.getUsername()).isEqualTo(username);
+    }
+    @Test
+    public void testFindByUsernameAndFollower_notFound()throws Exception{
+        String username = "Alice";
+        String follower = "Nicola";
+        Optional<UserFollower> userFollowerOptional = dao.findByUsernameAndFollower(username,follower);
+        assertThat(userFollowerOptional.isPresent()).isFalse();
+        username = "Nicola";
+        follower = "Alice";
+        userFollowerOptional = dao.findByUsernameAndFollower(username,follower);
+        assertThat(userFollowerOptional.isPresent()).isFalse();
     }
 
 
