@@ -1,6 +1,5 @@
-package xpsocialnetwork.dao;
+package it.antessio.xpsocialnetwork.dao;
 
-import it.antessio.xpsocialnetwork.dao.UserDAO;
 import it.antessio.xpsocialnetwork.exception.DAOException;
 import it.antessio.xpsocialnetwork.model.User;
 import org.junit.Before;

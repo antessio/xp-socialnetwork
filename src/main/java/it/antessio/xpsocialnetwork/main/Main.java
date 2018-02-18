@@ -1,6 +1,8 @@
 package it.antessio.xpsocialnetwork.main;
 
 
+import it.antessio.xpsocialnetwork.exception.ApplicationRuntimeException;
+import it.antessio.xpsocialnetwork.exception.CommandNotFoundException;
 import it.antessio.xpsocialnetwork.exception.ServiceException;
 import it.antessio.xpsocialnetwork.service.CommandService;
 import org.apache.commons.lang3.StringUtils;
@@ -20,7 +22,6 @@ public class Main {
         CommandService commandService = new CommandService();
         String command="";
 
-        System.out.print(">");
         printHelp();
         boolean waitForCommands = true;
             while(waitForCommands) {
@@ -37,6 +38,12 @@ public class Main {
                     } catch (ServiceException e) {
                         logger.error("Service error: "+e.getMessage(),e);
                         printOutput(e.getMessage());
+                    } catch (CommandNotFoundException e){
+                        logger.error(e.getMessage());
+                        printHelp(e.getMessage());
+                    }catch (ApplicationRuntimeException e){
+                        printOutput(e.getMessage());
+                        System.exit(1);
                     }
                 }
             }
@@ -50,9 +57,11 @@ public class Main {
         }
         System.out.print(">");
     }
-
     private static void printHelp() {
-        printOutput(
+        printHelp(null);
+    }
+    private static void printHelp(String error) {
+        printOutput((error!=null?error+"\n":"")+
                 "- posting: <user name> -> <message>\n" +
                 "- reading: <user name>\n" +
                 "- following: <user name> follows <another user>\n" +

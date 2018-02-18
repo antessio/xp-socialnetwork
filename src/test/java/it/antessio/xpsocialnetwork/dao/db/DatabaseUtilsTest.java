@@ -1,9 +1,6 @@
-package xpsocialnetwork.dao.db;
+package it.antessio.xpsocialnetwork.dao.db;
 
 
-import it.antessio.xpsocialnetwork.dao.db.DatabaseUtils;
-import it.antessio.xpsocialnetwork.dao.db.DatabaseUtilsFactory;
-import it.antessio.xpsocialnetwork.exception.ApplicationRuntimeException;
 import it.antessio.xpsocialnetwork.exception.DAOException;
 import org.junit.Before;
 import org.junit.Test;

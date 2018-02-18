@@ -1,7 +1,6 @@
-package xpsocialnetwork.dao;
+package it.antessio.xpsocialnetwork.dao;
 
 
-import it.antessio.xpsocialnetwork.dao.db.DatabaseUtils;
 import it.antessio.xpsocialnetwork.dao.db.DatabaseUtilsFactory;
 import org.junit.After;
 import org.junit.Before;

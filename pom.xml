@@ -23,7 +23,7 @@
                     <finalName>${project.artifactId}</finalName>
                     <archive>
                         <manifest>
-                            <mainClass>it.antessio.xpsocialnetwork.main.Main</mainClass>
+                            <mainClass>it.antessio.it.antessio.xpsocialnetwork.main.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
